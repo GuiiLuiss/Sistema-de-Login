@@ -80,8 +80,19 @@ def Register():
         Email = EmailEntry.get()
         User = UserEntry.get()
         Senha = PassEntry.get()
-
-        if (Name == "" or Email == "" or User == "" or Senha==""):
+        Database.cursor.execute("""
+        SELECT 
+            Usuario,
+            Email 
+        FROM 
+            Usuarios
+        WHERE
+            Usuario = %s or Email = %s
+        """,(User,Email))
+        VerificaRegis = Database.cursor.fetchone()
+        if User in VerificaRegis or Email in VerificaRegis:
+            messagebox.showerror(title="Erro de Registro",message="Usuário já cadastrado")
+        elif Name == "" or Email == "" or User == "" or Senha=="":
             messagebox.showerror(title="Erro de Registro",message="Preencha todos os campos")
         else:
             Database.cursor.execute("""
@@ -89,7 +100,6 @@ def Register():
             """,(Name,Email,User,Senha))
             Database.conn.commit()
             messagebox.showinfo(title="Informação de Registro",message="Conta criada com sucesso!")
-
     Registra = ttk.Button(RightFrame,text="Registrar",width=15,command=RegistrandoNoBanco)
     Registra.place(x=235,y=200)
     def VoltarLogin():
